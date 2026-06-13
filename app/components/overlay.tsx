@@ -1,6 +1,6 @@
 // app/components/DashboardOverlays.tsx
 import { useState, useEffect } from "react";
-import { FaKeyboard, FaLock } from "react-icons/fa";
+import { FaKeyboard, FaLock, FaRobot } from "react-icons/fa";
 
 export function Overlay({ children, onClose }: any) {
   return (
@@ -161,6 +161,84 @@ export function JoinOverlay({ onClose, socket }: any) {
           className="flex-1 py-3.5 rounded-xl font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/25 transition-all disabled:opacity-50"
         >
           {loading ? "Joining..." : "Join Game"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function BotOverlay({ topic, category, onClose, socket }: any) {
+  const [difficulty, setDifficulty] = useState<number>(1200); // default medium
+  const [loading, setLoading] = useState(false);
+
+  const startChallenge = () => {
+    setLoading(true);
+    socket?.emit("challenge_bot", {
+      topic,
+      category,
+      botRating: difficulty,
+    });
+  };
+
+  const difficulties = [
+    { label: "Easy", rating: 800, desc: "Slower response, makes occasional errors", color: "text-green-400 bg-green-500/10 border-green-500/20 hover:bg-green-500/20" },
+    { label: "Medium", rating: 1200, desc: "Balanced performance, standard challenge", color: "text-blue-400 bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20" },
+    { label: "Hard", rating: 1600, desc: "Fast response, rarely makes mistakes", color: "text-purple-400 bg-purple-500/10 border-purple-500/20 hover:bg-purple-500/20" },
+    { label: "Expert", rating: 2000, desc: "Extremely fast, near-perfect accuracy", color: "text-red-400 bg-red-500/10 border-red-500/20 hover:bg-red-500/20" },
+  ];
+
+  return (
+    <div className="text-center">
+      <div className="w-16 h-16 bg-purple-500/10 text-purple-400 rounded-full flex items-center justify-center mx-auto mb-6">
+        <FaRobot size={28} />
+      </div>
+      <h2 className="text-xl font-bold mb-2">Challenge AI Bot</h2>
+      <p className="text-white/50 text-sm mb-6">
+        Topic: <span className="text-white font-bold">{topic}</span> ({category})
+      </p>
+
+      <div className="space-y-3 mb-8 text-left">
+        {difficulties.map((diff) => (
+          <button
+            key={diff.rating}
+            onClick={() => setDifficulty(diff.rating)}
+            className={`w-full p-4 rounded-2xl border text-left transition-all flex items-center justify-between ${
+              difficulty === diff.rating
+                ? "border-purple-500 bg-purple-500/20 shadow-lg shadow-purple-500/10"
+                : "border-white/5 bg-black/20 hover:border-white/10"
+            }`}
+          >
+            <div>
+              <div className="font-bold text-sm text-white flex items-center gap-2">
+                {diff.label}
+                <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${diff.color}`}>
+                  {diff.rating} ELO
+                </span>
+              </div>
+              <div className="text-xs text-white/50 mt-1">{diff.desc}</div>
+            </div>
+            <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
+              difficulty === diff.rating ? "border-purple-400 bg-purple-500 text-white" : "border-white/20"
+            }`}>
+              {difficulty === diff.rating && <div className="w-2.5 h-2.5 bg-white rounded-full" />}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div className="flex gap-3">
+        <button
+          onClick={onClose}
+          className="flex-1 py-3.5 rounded-xl font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={startChallenge}
+          disabled={loading}
+          className="flex-1 py-3.5 rounded-xl font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/25 transition-all disabled:opacity-50"
+        >
+          {loading ? "Starting..." : "Start Challenge"}
         </button>
       </div>
     </div>

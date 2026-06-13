@@ -19,6 +19,7 @@ import {
   PublicOverlay,
   PrivateOverlay,
   JoinOverlay,
+  BotOverlay,
 } from "~/components/overlay";
 
 const CATEGORIES: Record<string, string[]> = {
@@ -33,10 +34,10 @@ export function meta() {
 export default function Dashboard() {
   const data: any = useRouteLoaderData("protected-layout");
   const navigate = useNavigate();
-  const { socket, isConnected } = useSocket();
+  const { socket, isConnected, connect } = useSocket();
 
   // UI State
-  const [overlay, setOverlay] = useState<null | "public" | "private" | "join">(
+  const [overlay, setOverlay] = useState<null | "public" | "private" | "join" | "bot">(
     null
   );
   const [selectedCategory, setSelectedCategory] = useState("CS");
@@ -54,6 +55,13 @@ export default function Dashboard() {
   const activePlayers = data?.activePlayers || 0;
   console.log(recentMatches);
   const topPlayers = data?.leaderboard || [];
+
+  // Auto-connect socket if disconnected
+  useEffect(() => {
+    if (!isConnected) {
+      connect();
+    }
+  }, [isConnected, connect]);
 
   // Socket Event Listeners
   useEffect(() => {
@@ -258,6 +266,14 @@ export default function Dashboard() {
                 </span>
               </button>
 
+              <button
+                onClick={() => setOverlay("bot")}
+                disabled={!isConnected}
+                className={`w-full py-4 rounded-xl font-bold bg-gradient-to-r from-purple-600 to-indigo-500 hover:from-purple-500 hover:to-indigo-400 text-white shadow-lg shadow-purple-500/25 transition-all flex items-center justify-center gap-2 group ${!isConnected ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                <span>Challenge AI Bot 🤖</span>
+              </button>
+
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => setOverlay("private")}
@@ -321,7 +337,7 @@ export default function Dashboard() {
                       </div>
                       <div>
                         <div className="font-medium text-sm">
-                          {match.opponent?.name || match.opponentId}
+                          {match.opponent?.name === "Unknown" ? "Apex AI Bot" : match.opponent?.name || match.opponentId || "Apex AI Bot"}
                         </div>
                         <div className="text-xs text-white/40">
                           {match.topic}
@@ -410,6 +426,14 @@ export default function Dashboard() {
           )}
           {overlay === "join" && (
             <JoinOverlay onClose={() => setOverlay(null)} socket={socket} />
+          )}
+          {overlay === "bot" && (
+            <BotOverlay
+              topic={selectedTopic}
+              category={selectedCategory}
+              onClose={() => setOverlay(null)}
+              socket={socket}
+            />
           )}
         </Overlay>
       )}

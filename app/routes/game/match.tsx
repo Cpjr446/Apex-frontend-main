@@ -5,6 +5,12 @@ import Navbar from "../../components/navbar";
 import { getRankInfo } from "../../utils/rankUtils";
 import { useSocket } from "~/context/SocketContext";
 
+function getPlayerId(player: any) {
+    if (!player) return "";
+    if (!player.userId) return "000000000000000000000000";
+    return typeof player.userId === 'object' ? (player.userId._id || player.userId.id || "").toString() : player.userId.toString();
+}
+
 export async function clientLoader() {
     const token = localStorage.getItem("token");
     if (!token) return redirect("/login");
@@ -56,7 +62,7 @@ export default function GameRoom() {
 
                 // Check if user is in this game
                 const isPlayer = gameData.players.some((p: any) => {
-                    const id = p.userId._id || p.userId;
+                    const id = getPlayerId(p);
                     // Debug Log
                     console.log(`Checking player: ${id} vs Me: ${user._id}`);
                     return id && id.toString() === user._id;
@@ -75,15 +81,15 @@ export default function GameRoom() {
                 if (gameData.status === "FINISHED") {
                     // Show results for finished game
                     const myPlayer = gameData.players.find((p: any) => {
-                        const id = p.userId._id || p.userId;
+                        const id = getPlayerId(p);
                         return id && id.toString() === user._id;
                     });
 
                     // Determine winner
                     const p1 = gameData.players[0];
                     const p2 = gameData.players[1];
-                    const winnerId = p1.result === "win" ? (p1.userId._id || p1.userId) :
-                        (p2.result === "win" ? (p2.userId._id || p2.userId) : null);
+                    const winnerId = p1.result === "win" ? getPlayerId(p1) :
+                        (p2.result === "win" ? getPlayerId(p2) : null);
 
                     setResults({
                         winner: { userId: winnerId },
@@ -102,7 +108,7 @@ export default function GameRoom() {
 
                 // Hydrate progress
                 const myPlayer = gameData.players.find((p: any) => {
-                    const id = p.userId._id || p.userId;
+                    const id = getPlayerId(p);
                     return id && id.toString() === user._id;
                 });
                 const myProgress = myPlayer?.answers?.length || 0;
@@ -147,7 +153,7 @@ export default function GameRoom() {
                 setGame((prevGame: any) => {
                     if (!prevGame) return prevGame;
                     const updatedPlayers = prevGame.players.map((p: any) => {
-                        const r = data.results.find((res: any) => (p.userId._id || p.userId).toString() === res.userId);
+                        const r = data.results.find((res: any) => getPlayerId(p) === res.userId);
                         if (r) {
                             return { ...p, score: r.newScore };
                         }
@@ -203,7 +209,7 @@ export default function GameRoom() {
                     });
                     const finalGame = await res.json();
 
-                    const myPlayer = finalGame.players.find((p: any) => (p.userId._id || p.userId).toString() === user._id);
+                    const myPlayer = finalGame.players.find((p: any) => getPlayerId(p) === user._id);
                     setGame(finalGame); // Store full game data
                     setResults({
                         winner: { userId: data.winnerId },
@@ -410,8 +416,8 @@ export default function GameRoom() {
     const rank = getRankInfo(data?.stats?.overall?.rating || 0).rank;
 
     // --- RENDER HELPERS ---
-    const myPlayer = game.players.find((p: any) => (p.userId._id || p.userId).toString() === user._id);
-    const opponent = game.players.find((p: any) => (p.userId._id || p.userId).toString() !== user._id);
+    const myPlayer = game.players.find((p: any) => getPlayerId(p) === user._id);
+    const opponent = game.players.find((p: any) => getPlayerId(p) !== user._id);
 
     return (
         <div className="min-h-screen bg-[#0a0e27] text-white pb-12 relative overflow-x-hidden">
@@ -445,7 +451,7 @@ export default function GameRoom() {
                             <div className={`p-6 rounded-2xl border ${roundData.results.find((r: any) => r.userId !== user._id)?.isCorrect ? 'bg-green-500/20 border-green-500/50' : 'bg-red-500/20 border-red-500/50'}`}>
                                 <div className="text-center">
                                     <div className="text-sm font-bold uppercase tracking-wider mb-2 opacity-70">
-                                        {(opponent?.userId as any)?.name || "Opponent"}
+                                         {getPlayerId(opponent) === "000000000000000000000000" ? `Apex Bot (${opponent?.newRating || 1200})` : ((opponent?.userId as any)?.name || "Opponent")}
                                     </div>
                                     <div className="text-2xl font-bold mb-1">
                                         {roundData.results.find((r: any) => r.userId !== user._id)?.answer || (roundData.results.find((r: any) => r.userId !== user._id)?.timeTaken >= 60 ? "Timed Out" : "No Answer")}
@@ -502,7 +508,7 @@ export default function GameRoom() {
                     <div className="flex items-center gap-4">
                         <div className="text-left">
                             <div className="text-xs font-bold text-white/50 uppercase">
-                                {(opponent?.userId as any)?.name || opponent?.name || "Opponent"}
+                                {getPlayerId(opponent) === "000000000000000000000000" ? `Apex Bot (${opponent?.newRating || 1200})` : ((opponent?.userId as any)?.name || opponent?.name || "Opponent")}
                             </div>
                             <div className="text-2xl font-black">{opponent?.score || 0}</div>
                         </div>
@@ -614,7 +620,7 @@ function GameResult({ results, currentUser, game }: any) {
                     <div className="bg-white/5 rounded-3xl p-6 border border-white/5">
                         <div className="text-white/40 text-xs uppercase font-black mb-2 tracking-widest">Match Score</div>
                         <div className="text-4xl font-black text-cyan-400">
-                            {game.players.find((p: any) => (p.userId._id || p.userId).toString() === currentUser?._id)?.score || 0}
+                             {game.players.find((p: any) => getPlayerId(p) === currentUser?._id)?.score || 0}
                         </div>
                         <div className="text-xs text-white/40 font-medium mt-1">Points Earned</div>
                     </div>
@@ -700,7 +706,7 @@ function GameResult({ results, currentUser, game }: any) {
                         {game?.questions?.map((qObj: any, idx: number) => {
                             const question = qObj.questionId;
                             // Find user's answer
-                            const myPlayer = game.players.find((p: any) => (p.userId._id || p.userId).toString() === currentUser._id);
+                            const myPlayer = game.players.find((p: any) => getPlayerId(p) === currentUser._id);
                             const myAnswerObj = myPlayer?.answers?.find((a: any) => {
                                 // Support both string and ObjectId comparison
                                 const answerQId = a.questionId?._id || a.questionId;
