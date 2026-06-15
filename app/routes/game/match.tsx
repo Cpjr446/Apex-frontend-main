@@ -148,20 +148,26 @@ export default function GameRoom() {
             setRoundStatus('REVIEW');
             setRoundData(data);
 
-            // Update scores based on payload
-            if (data.results) {
-                setGame((prevGame: any) => {
-                    if (!prevGame) return prevGame;
-                    const updatedPlayers = prevGame.players.map((p: any) => {
+            // Update scores and round start time based on payload
+            setGame((prevGame: any) => {
+                if (!prevGame) return prevGame;
+                
+                const updatedPlayers = data.results
+                    ? prevGame.players.map((p: any) => {
                         const r = data.results.find((res: any) => getPlayerId(p) === res.userId);
                         if (r) {
                             return { ...p, score: r.newScore };
                         }
                         return p;
-                    });
-                    return { ...prevGame, players: updatedPlayers };
-                });
-            }
+                    })
+                    : prevGame.players;
+
+                return { 
+                    ...prevGame, 
+                    players: updatedPlayers,
+                    currentRoundStartTime: data.nextRoundStartTime // Sync the round start time for the next question
+                };
+            });
 
             // Auto-advance after 5 seconds
             setTimeout(() => {
