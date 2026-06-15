@@ -16,6 +16,16 @@ export default function Footer() {
                     Aakash Bathri
                     <FaLinkedin className="group-hover:text-[#0077b5] transition-colors" />
                 </a>
+                <span>and</span>
+                <a
+                    href="https://www.linkedin.com/in/chandraprakash-jr-a47ab02a0/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white hover:text-cyan-400 transition-colors flex items-center gap-1 group"
+                >
+                    J R Chandraprakash
+                    <FaLinkedin className="group-hover:text-[#0077b5] transition-colors" />
+                </a>
             </div>
         </footer>
     );

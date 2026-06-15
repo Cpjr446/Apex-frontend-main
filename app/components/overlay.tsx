@@ -167,9 +167,16 @@ export function JoinOverlay({ onClose, socket }: any) {
   );
 }
 
-export function BotOverlay({ topic, category, onClose, socket }: any) {
+export function BotOverlay({ topic: initialTopic, category: initialCategory, onClose, socket }: any) {
+  const [category, setCategory] = useState<string>(initialCategory || "CS");
+  const [topic, setTopic] = useState<string>(initialTopic || "RANDOM");
   const [difficulty, setDifficulty] = useState<number>(1200); // default medium
   const [loading, setLoading] = useState(false);
+
+  const CATEGORIES: Record<string, string[]> = {
+    CS: ["DSA", "OOPS", "OS", "DBMS", "CN"],
+    Electronics: ["Digital", "Analog", "Signals", "COA", "C_Prog"],
+  };
 
   const startChallenge = () => {
     setLoading(true);
@@ -187,43 +194,99 @@ export function BotOverlay({ topic, category, onClose, socket }: any) {
     { label: "Expert", rating: 2000, desc: "Extremely fast, near-perfect accuracy", color: "text-red-400 bg-red-500/10 border-red-500/20 hover:bg-red-500/20" },
   ];
 
+  const currentTopics = CATEGORIES[category] || [];
+
   return (
-    <div className="text-center">
+    <div className="text-center w-full max-w-sm mx-auto">
       <div className="w-16 h-16 bg-purple-500/10 text-purple-400 rounded-full flex items-center justify-center mx-auto mb-6">
         <FaRobot size={28} />
       </div>
-      <h2 className="text-xl font-bold mb-2">Challenge AI Bot</h2>
-      <p className="text-white/50 text-sm mb-6">
-        Topic: <span className="text-white font-bold">{topic}</span> ({category})
-      </p>
+      <h2 className="text-xl font-bold mb-4">Challenge AI Bot</h2>
 
-      <div className="space-y-3 mb-8 text-left">
-        {difficulties.map((diff) => (
+      {/* Category Selection */}
+      <div className="mb-4 text-left">
+        <label className="text-xs font-bold text-white/40 uppercase tracking-wider block mb-2">Category</label>
+        <div className="flex gap-2">
+          {Object.keys(CATEGORIES).map((cat) => (
+            <button
+              key={cat}
+              onClick={() => {
+                setCategory(cat);
+                setTopic("RANDOM");
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                category === cat
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                  : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Topic Selection */}
+      <div className="mb-6 text-left">
+        <label className="text-xs font-bold text-white/40 uppercase tracking-wider block mb-2">Select Topic</label>
+        <div className="flex flex-wrap gap-2">
           <button
-            key={diff.rating}
-            onClick={() => setDifficulty(diff.rating)}
-            className={`w-full p-4 rounded-2xl border text-left transition-all flex items-center justify-between ${
-              difficulty === diff.rating
-                ? "border-purple-500 bg-purple-500/20 shadow-lg shadow-purple-500/10"
-                : "border-white/5 bg-black/20 hover:border-white/10"
+            onClick={() => setTopic("RANDOM")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+              topic === "RANDOM"
+                ? "bg-blue-500/20 border-blue-500 text-blue-400"
+                : "bg-white/5 border-transparent text-white/40 hover:bg-white/10"
             }`}
           >
-            <div>
-              <div className="font-bold text-sm text-white flex items-center gap-2">
-                {diff.label}
-                <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${diff.color}`}>
-                  {diff.rating} ELO
-                </span>
-              </div>
-              <div className="text-xs text-white/50 mt-1">{diff.desc}</div>
-            </div>
-            <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
-              difficulty === diff.rating ? "border-purple-400 bg-purple-500 text-white" : "border-white/20"
-            }`}>
-              {difficulty === diff.rating && <div className="w-2.5 h-2.5 bg-white rounded-full" />}
-            </div>
+            All (Random)
           </button>
-        ))}
+          {currentTopics.map((t) => (
+            <button
+              key={t}
+              onClick={() => setTopic(t)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                topic === t
+                  ? "bg-blue-500/20 border-blue-500 text-blue-400"
+                  : "bg-white/5 border-transparent text-white/40 hover:bg-white/10"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Difficulty Selection */}
+      <div className="mb-8 text-left">
+        <label className="text-xs font-bold text-white/40 uppercase tracking-wider block mb-2">Difficulty</label>
+        <div className="space-y-2.5">
+          {difficulties.map((diff) => (
+            <button
+              key={diff.rating}
+              onClick={() => setDifficulty(diff.rating)}
+              className={`w-full p-3.5 rounded-2xl border text-left transition-all flex items-center justify-between ${
+                difficulty === diff.rating
+                  ? "border-purple-500 bg-purple-500/20 shadow-lg shadow-purple-500/10"
+                  : "border-white/5 bg-black/20 hover:border-white/10"
+              }`}
+            >
+              <div>
+                <div className="font-bold text-sm text-white flex items-center gap-2">
+                  {diff.label}
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${diff.color}`}>
+                    {diff.rating} ELO
+                  </span>
+                </div>
+                <div className="text-[11px] text-white/50 mt-0.5">{diff.desc}</div>
+              </div>
+              <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${
+                difficulty === diff.rating ? "border-purple-400 bg-purple-500 text-white" : "border-white/20"
+              }`}>
+                {difficulty === diff.rating && <div className="w-2 h-2 bg-white rounded-full" />}
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="flex gap-3">
