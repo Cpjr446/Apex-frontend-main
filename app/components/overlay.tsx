@@ -1,18 +1,17 @@
-// app/components/DashboardOverlays.tsx
 import { useState, useEffect } from "react";
-import { FaKeyboard, FaLock, FaRobot } from "react-icons/fa";
+import { LuKeyboard, LuLock, LuBot, LuLoader } from "react-icons/lu";
 
 export function Overlay({ children, onClose }: any) {
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50 px-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 flex items-center justify-center z-50 px-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
-        className="bg-[#12162e] border border-white/10 rounded-3xl p-1 w-full max-w-md shadow-2xl relative overflow-hidden"
+        className="bg-[#121936] border border-[#26304D] rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-500" />
+        <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#2979FF] to-[#26C6DA]" />
         <div className="p-6 md:p-8">{children}</div>
       </div>
     </div>
@@ -22,25 +21,25 @@ export function Overlay({ children, onClose }: any) {
 export function PublicOverlay({ topic, category, onClose, socket }: any) {
   useEffect(() => {
     if (socket) {
-      socket.emit("join_queue", { topic, category, rating: 1000 }); // Pass rating from props ideally
+      socket.emit("join_queue", { topic, category, rating: 1000 });
     }
   }, [socket, topic]);
 
   return (
     <div className="text-center w-full max-w-sm mx-auto">
-      <div className="w-16 h-16 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mx-auto mb-6">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-current"></div>
+      <div className="w-16 h-16 bg-[#2979FF]/10 text-[#26C6DA] rounded-full flex items-center justify-center mx-auto mb-6">
+        <LuLoader className="animate-spin text-2xl" />
       </div>
-      <h2 className="text-xl font-bold mb-2">Finding Match...</h2>
+      <h2 className="text-xl font-bold font-heading mb-2">Finding Match...</h2>
       <p className="text-white/50 text-sm mb-6">
         Looking for an opponent in{" "}
-        <span className="text-white font-bold">{topic}</span>
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2979FF] to-[#26C6DA] font-extrabold">{topic}</span>
       </p>
       <button
         onClick={onClose}
-        className="w-full py-3.5 rounded-xl font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+        className="w-full py-3.5 rounded-xl font-bold text-white/50 hover:text-white hover:bg-white/5 transition-all duration-200 cursor-pointer border border-transparent hover:border-white/5"
       >
-        Cancel
+        Cancel Matchmaking
       </button>
     </div>
   );
@@ -70,25 +69,25 @@ export function PrivateOverlay({ topic, category, onClose, socket }: any) {
   if (createdCode) {
     return (
       <div className="text-center">
-        <div className="w-16 h-16 bg-green-500/10 text-green-400 rounded-full flex items-center justify-center mx-auto mb-6">
-          <FaLock size={28} />
+        <div className="w-16 h-16 bg-green-500/10 text-green-400 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/20">
+          <LuLock size={24} />
         </div>
-        <h2 className="text-xl font-bold mb-2">Game Created!</h2>
+        <h2 className="text-xl font-bold font-heading mb-2">Game Created!</h2>
         <p className="text-white/50 text-sm mb-6">
           Topic: <span className="text-white font-bold">{topic}</span>
           <br />
-          Share:
+          Share lobby code:
         </p>
-        <div className="bg-black/30 p-4 rounded-xl border border-white/5 mb-8">
-          <div className="text-3xl font-mono font-bold tracking-[0.2em] text-cyan-400 select-all">
+        <div className="bg-[#060B23] p-4 rounded-xl border border-[#26304D] mb-6">
+          <div className="text-3xl font-mono font-black tracking-[0.2em] text-[#26C6DA] select-all">
             {createdCode}
           </div>
         </div>
         <button
           onClick={onClose}
-          className="w-full py-3.5 rounded-xl font-bold bg-white/10 hover:bg-white/20 text-white transition-colors"
+          className="w-full py-3.5 rounded-xl btn-premium-primary cursor-pointer text-sm"
         >
-          Done (Waiting...)
+          Done (Waiting for opponent...)
         </button>
       </div>
     );
@@ -96,25 +95,24 @@ export function PrivateOverlay({ topic, category, onClose, socket }: any) {
 
   return (
     <div className="text-center">
-      <div className="w-16 h-16 bg-cyan-500/10 text-cyan-400 rounded-full flex items-center justify-center mx-auto mb-6">
-        <FaLock size={28} />
+      <div className="w-16 h-16 bg-[#2979FF]/10 text-[#26C6DA] rounded-full flex items-center justify-center mx-auto mb-6">
+        <LuLock size={24} />
       </div>
-      <h2 className="text-xl font-bold mb-2">Create Private Room</h2>
-      <p className="text-white/50 text-sm mb-8">
-        Create a private <span className="text-white font-bold">{topic}</span>{" "}
-        room.
+      <h2 className="text-xl font-bold font-heading mb-2">Create Private Room</h2>
+      <p className="text-white/50 text-sm mb-8 leading-normal">
+        Create a private <span className="text-white font-bold">{topic}</span> duel lobby to challenge your friends.
       </p>
       <div className="flex gap-3">
         <button
           onClick={onClose}
-          className="flex-1 py-3.5 rounded-xl font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+          className="flex-1 py-3.5 rounded-xl btn-premium-secondary cursor-pointer text-sm"
         >
           Cancel
         </button>
         <button
           onClick={create}
           disabled={loading}
-          className="flex-1 py-3.5 rounded-xl font-bold bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-500/25 transition-all disabled:opacity-50"
+          className="flex-1 py-3.5 rounded-xl btn-premium-primary cursor-pointer text-sm disabled:opacity-50"
         >
           {loading ? "Creating..." : "Create Room"}
         </button>
@@ -135,32 +133,32 @@ export function JoinOverlay({ onClose, socket }: any) {
 
   return (
     <div className="text-center">
-      <div className="w-16 h-16 bg-purple-500/10 text-purple-400 rounded-full flex items-center justify-center mx-auto mb-6">
-        <FaKeyboard size={28} />
+      <div className="w-16 h-16 bg-[#2979FF]/10 text-[#26C6DA] rounded-full flex items-center justify-center mx-auto mb-6">
+        <LuKeyboard size={24} />
       </div>
-      <h2 className="text-xl font-bold mb-2">Join Game</h2>
-      <p className="text-white/50 text-sm mb-8">Enter code:</p>
+      <h2 className="text-xl font-bold font-heading mb-2">Join Duel Room</h2>
+      <p className="text-white/50 text-sm mb-6">Enter lobby invitation code:</p>
       <input
         type="text"
         placeholder="ENTER CODE"
         value={code}
         onChange={(e) => setCode(e.target.value.toUpperCase())}
-        className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-4 text-center text-xl font-mono font-bold tracking-widest text-white placeholder:text-white/20 focus:outline-none focus:border-purple-500 transition-colors mb-8"
+        className="w-full bg-[#060B23] border border-[#26304D] rounded-xl px-4 py-4.5 text-center text-2xl font-mono font-black tracking-[0.2em] text-[#26C6DA] placeholder:text-white/10 focus:outline-none focus:border-[#26C6DA] transition-all duration-200 mb-6"
         maxLength={6}
       />
       <div className="flex gap-3">
         <button
           onClick={onClose}
-          className="flex-1 py-3.5 rounded-xl font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+          className="flex-1 py-3.5 rounded-xl btn-premium-secondary cursor-pointer text-sm"
         >
           Cancel
         </button>
         <button
           onClick={join}
           disabled={loading || code.length < 6}
-          className="flex-1 py-3.5 rounded-xl font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/25 transition-all disabled:opacity-50"
+          className="flex-1 py-3.5 rounded-xl btn-premium-primary cursor-pointer text-sm disabled:opacity-50"
         >
-          {loading ? "Joining..." : "Join Game"}
+          {loading ? "Joining..." : "Join Lobby"}
         </button>
       </div>
     </div>
@@ -198,14 +196,14 @@ export function BotOverlay({ topic: initialTopic, category: initialCategory, onC
 
   return (
     <div className="text-center w-full max-w-sm mx-auto">
-      <div className="w-16 h-16 bg-purple-500/10 text-purple-400 rounded-full flex items-center justify-center mx-auto mb-6">
-        <FaRobot size={28} />
+      <div className="w-16 h-16 bg-[#2979FF]/10 text-[#26C6DA] rounded-full flex items-center justify-center mx-auto mb-6">
+        <LuBot size={24} />
       </div>
-      <h2 className="text-xl font-bold mb-4">Challenge AI Bot</h2>
+      <h2 className="text-xl font-bold font-heading mb-4">Challenge AI Bot</h2>
 
       {/* Category Selection */}
       <div className="mb-4 text-left">
-        <label className="text-xs font-bold text-white/40 uppercase tracking-wider block mb-2">Category</label>
+        <label className="text-[10px] font-bold text-white/40 uppercase tracking-wider block mb-2">Category</label>
         <div className="flex gap-2">
           {Object.keys(CATEGORIES).map((cat) => (
             <button
@@ -214,9 +212,9 @@ export function BotOverlay({ topic: initialTopic, category: initialCategory, onC
                 setCategory(cat);
                 setTopic("RANDOM");
               }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 cursor-pointer ${
                 category === cat
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
+                  ? "btn-premium-primary text-white shadow-sm"
                   : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white"
               }`}
             >
@@ -228,13 +226,13 @@ export function BotOverlay({ topic: initialTopic, category: initialCategory, onC
 
       {/* Topic Selection */}
       <div className="mb-6 text-left">
-        <label className="text-xs font-bold text-white/40 uppercase tracking-wider block mb-2">Select Topic</label>
-        <div className="flex flex-wrap gap-2">
+        <label className="text-[10px] font-bold text-white/40 uppercase tracking-wider block mb-2">Select Topic</label>
+        <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto pr-1">
           <button
             onClick={() => setTopic("RANDOM")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 cursor-pointer ${
               topic === "RANDOM"
-                ? "bg-blue-500/20 border-blue-500 text-blue-400"
+                ? "bg-[#2979FF]/15 border-[#2979FF] text-[#26C6DA]"
                 : "bg-white/5 border-transparent text-white/40 hover:bg-white/10"
             }`}
           >
@@ -244,9 +242,9 @@ export function BotOverlay({ topic: initialTopic, category: initialCategory, onC
             <button
               key={t}
               onClick={() => setTopic(t)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all duration-200 cursor-pointer ${
                 topic === t
-                  ? "bg-blue-500/20 border-blue-500 text-blue-400"
+                  ? "bg-[#2979FF]/15 border-[#2979FF] text-[#26C6DA]"
                   : "bg-white/5 border-transparent text-white/40 hover:bg-white/10"
               }`}
             >
@@ -257,32 +255,32 @@ export function BotOverlay({ topic: initialTopic, category: initialCategory, onC
       </div>
 
       {/* Difficulty Selection */}
-      <div className="mb-8 text-left">
-        <label className="text-xs font-bold text-white/40 uppercase tracking-wider block mb-2">Difficulty</label>
-        <div className="space-y-2.5">
+      <div className="mb-6 text-left">
+        <label className="text-[10px] font-bold text-white/40 uppercase tracking-wider block mb-2">Difficulty</label>
+        <div className="space-y-2">
           {difficulties.map((diff) => (
             <button
               key={diff.rating}
               onClick={() => setDifficulty(diff.rating)}
-              className={`w-full p-3.5 rounded-2xl border text-left transition-all flex items-center justify-between ${
+              className={`w-full p-3 rounded-xl border text-left transition-all duration-250 cursor-pointer flex items-center justify-between ${
                 difficulty === diff.rating
-                  ? "border-purple-500 bg-purple-500/20 shadow-lg shadow-purple-500/10"
-                  : "border-white/5 bg-black/20 hover:border-white/10"
+                  ? "border-[#26C6DA] bg-[#26C6DA]/10 shadow-[0_0_10px_rgba(38,198,218,0.15)]"
+                  : "border-[#26304D] bg-[#0d122b] hover:border-white/15"
               }`}
             >
               <div>
-                <div className="font-bold text-sm text-white flex items-center gap-2">
+                <div className="font-bold text-xs text-white flex items-center gap-2">
                   {diff.label}
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${diff.color}`}>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-bold ${diff.color}`}>
                     {diff.rating} ELO
                   </span>
                 </div>
-                <div className="text-[11px] text-white/50 mt-0.5">{diff.desc}</div>
+                <div className="text-[10px] text-white/40 mt-0.5 leading-normal">{diff.desc}</div>
               </div>
-              <div className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${
-                difficulty === diff.rating ? "border-purple-400 bg-purple-500 text-white" : "border-white/20"
+              <div className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-all ${
+                difficulty === diff.rating ? "border-[#26C6DA] bg-[#26C6DA]" : "border-white/20"
               }`}>
-                {difficulty === diff.rating && <div className="w-2 h-2 bg-white rounded-full" />}
+                {difficulty === diff.rating && <div className="w-1.5 h-1.5 bg-[#060B23] rounded-full" />}
               </div>
             </button>
           ))}
@@ -292,14 +290,14 @@ export function BotOverlay({ topic: initialTopic, category: initialCategory, onC
       <div className="flex gap-3">
         <button
           onClick={onClose}
-          className="flex-1 py-3.5 rounded-xl font-medium text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+          className="flex-1 py-3.5 rounded-xl btn-premium-secondary cursor-pointer text-sm"
         >
           Cancel
         </button>
         <button
           onClick={startChallenge}
           disabled={loading}
-          className="flex-1 py-3.5 rounded-xl font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/25 transition-all disabled:opacity-50"
+          className="flex-1 py-3.5 rounded-xl btn-premium-primary cursor-pointer text-sm disabled:opacity-50"
         >
           {loading ? "Starting..." : "Start Challenge"}
         </button>

@@ -26,7 +26,7 @@ export async function clientLoader() {
     const data = await res.json();
     console.log(data);
     return data; // This data will be available to all child routes via useRouteLoaderData
-  } catch (error) {
+  } catch (error: any) {
     console.error("Dashboard fetch error:", error);
     // Temporary debugging: Alert the user to see what went wrong
     if (typeof window !== "undefined") {
